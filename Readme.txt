@@ -4,6 +4,8 @@ The project is aimed at
 
 In order to do the first part, we use data form various surveys beginning with PAN-STARRS, SDSS, POSS. 
   - All these surveys have data on stars and galaxies taken over some period of time. 
-  - We cross-calibrate them and calculate proper motion
+  - We cross-calibrate them and calculate proper motions!
   
   
+Programming Part 
+  -Using IPython 
