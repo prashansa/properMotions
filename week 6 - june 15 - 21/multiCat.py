@@ -46,7 +46,9 @@ pixelDec = 90 - theta*180/np.pi
 #calculate phi and theta for ra/dec values of the testFile
 phiForObj = (testFile['ra'] * np.pi)/180 
 thetaForObj = (90 - testFile['dec'])* (np.pi/180)
-pixelIndexForObj= hp.ang2pix(nside,thetaForObj, phiForObj)
+pixelIndexForObjTest= hp.ang2pix(nside,thetaForObj, phiForObj)
+#we want every pixel only once! 
+pixelIndexForObj = np.unique(pixelIndexForObjTest)
 
 #pick a pixel from the testFile
 #pickPixelNo = pixelIndexForObj[len(pixelIndexForObj)/2]
