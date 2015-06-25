@@ -323,6 +323,7 @@ def pixelTasks(parameterListForPixel):
         searchFile.append(triand[triand.get_where_list('obj_id == o')])
 
     m1, m2 = match(triand.col('obj_id'), objInRadius)
+    print triand[m1]
     print triand.col('obj_id')[m1]
     print objInRadius[m2]
 
