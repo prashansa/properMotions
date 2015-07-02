@@ -13,7 +13,7 @@ from astropy.time import Time
 from time import time
 from esutil.coords import sphdist
 import healpy as hp
-from esutil.numpy_utils import match
+from esutil.numpy_util import match
 
 from multiprocessing import Pool
 
@@ -224,21 +224,21 @@ triand = testH5file.root.triand
 maskForGal= triand.get_where_list('gal == 1')
 maskForStar = triand.get_where_list('gal == 0')
 
-#select galaxy ids 
-passValuesGal = triand.col('obj_id')[maskForGal]
+#select galaxy ids
+objIDfile= triand.col('obj_id')[maskForGal]
 #save the number of galaxies
-noOfGal = len(passValuesGal)
+noOfGal = len(objIDfile)
 #save unique galaxy ids in another variable
-uniqueObjIDfile = np.unique(passValuesGal)
+uniqueObjIDfile = np.unique(objIDfile)
 #the number of observations actually available for each object
-noOfObs = np.zeros(len(uniqueObjIDfile)) 
+noOfObs = np.zeros(noOfGal) 
 
 #select star ids 
-passValuesStar = triand.col('obj_id')[maskForStar]
+#passValuesStar = triand.col('obj_id')[maskForStar]
 #save the number of stars
-noOfStar = len(passValuesStar)
+#noOfStar = len(passValuesStar)
 #save unique star ids in another variable
-uniqueStarIDfile = np.unique(passValuesStar)
+#uniqueStarIDfile = np.unique(passValuesStar)
 
 
 #binning mjds for once
@@ -274,11 +274,11 @@ pixelDec = 90 - theta*180/np.pi
 #decValues = np.array(raValues1)
 
 #store ra/dec values of galaxies
-raValues = triand.col('ra')[maskForGal]
-decValues = triand.col('dec')[maskForGal]
+raValues = triand.col('ra')#[maskForGal]
+decValues = triand.col('dec')#[maskForGal]
 #store ra/dec values of stars
-raValuesStar = triand.col('ra')[maskForStar]
-decValuesStar = triand.col('dec')[maskForStar]
+#raValuesStar = triand.col('ra')[maskForStar]
+#decValuesStar = triand.col('dec')[maskForStar]
 
 
 #calculate phi and theta for ra/dec values of the testH5file
@@ -288,6 +288,15 @@ thetaForObj = (90 - decValues)* (np.pi/180)
 pixelIndexForObjTest= hp.ang2pix(nside,thetaForObj, phiForObj)
 #we want every pixel index only once! 
 pixelIndexForObj = np.unique(pixelIndexForObjTest)
+
+#calculate phi and theta for ra/dec values of the testH5file
+#phiForStar = (raValuesStar * np.pi)/180 
+#thetaForStar = (90 - decValuesStar)* (np.pi/180)
+#calculate pixel indices for each theta and phi in the dataset
+#pixelIndexForStarTest= hp.ang2pix(nside,thetaForObj, phiForObj)
+#we want every pixel index only once! 
+#pixelIndexForObj = np.unique(pixelIndexForObjTest)
+
 
 #pack parameters for workers
 #Note: even if res_ra and res_dec are huge, they are passed as references, so "parameterListForPixel" does not use a lot of memory
@@ -323,6 +332,8 @@ def pixelTasks(parameterListForPixel):
         searchFile.append(triand[triand.get_where_list('obj_id == o')])
 
     m1, m2 = match(triand.col('obj_id'), objInRadius)
+    m1, m2 = match_multi(triand.col('obj_id'), objInRadius)
+    
     print triand[m1]
     print triand.col('obj_id')[m1]
     print objInRadius[m2]
@@ -482,11 +493,15 @@ np.save('decFinal.npy', decFinal)
 
 
 def calcMedianAndResiduals(testH5file, uniqueObjIDfile):
-    '''calculates median ra and dec along with residuals for a region of sky once'''
-    #stores the median ra and dec values for each object
-    medianRaArray  = np.zeros(uniqueObjIDfile.size)
-    medianDecArray = np.zeros(uniqueObjIDfile.size)
-    objIDarray = np.zeros(uniqueObjIDfile.size) #, dtype='u8')
+    '''calculates median ra and dec along with residuals for galaxies in a region of sky once'''
+    global noOfGal
+    global objIDfile
+    global maskForGal
+    global maskForStar
+    #stores the median ra/dec values and the objID for each object
+    medianRaArray  = np.zeros(noOfGal)
+    medianDecArray = np.zeros(noOfGal)
+    objIDarray = np.zeros(noOfGal, dtype='u8')
     #stores the residual values for each object and for each epoch
     #residualRaArray= np.zeros(len(triand[maskForGal]))
     #residualDecArray= np.zeros(len(triand[maskForGal]))
@@ -499,15 +514,15 @@ def calcMedianAndResiduals(testH5file, uniqueObjIDfile):
     raObj  = [triand.col('ra')[maskForGal[0]]]
     decObj = [triand.col('dec')[maskForGal[0]]]
     mjdObj = [triand.col('mjd')[maskForGal[0]]]
-    #set variables
-    objIDcounter = 0
-    pos=0
-    #removed these, since they will occupy much space in memory
-    #instead put in the i th component of the mask in the loop itself! CLEVER BRANI! 
+    #removed these, since they will occupy much space in memory ---- instead put in the i th component of the mask in the loop itself! CLEVER BRANI!
+    #but these take a longer time, 1 minute as compared to 1 second, if you create the storage arrays -- take a pick - time or memory? 
     objIDgal = triand.col('obj_id')[maskForGal]
     raGal    = triand.col('ra')[maskForGal]
     decGal   = triand.col('dec')[maskForGal]
     mjdGal   = triand.col('mjd')[maskForGal]
+    #set variables
+    objIDcounter = 0
+    pos=0
     t1 = time()
     #it should start from the second row, so add one.
     for i in np.arange(30)+1:# np.arange(noOfGal-1)+1:#
@@ -547,7 +562,7 @@ def calcMedianAndResiduals(testH5file, uniqueObjIDfile):
                 medianRaArray[objIDcounter] = medianRa
                 medianDecArray[objIDcounter] = medianDec
                 #also need to store the objID
-                objIDarray[objIDcounter]=objID
+                objIDarray[objIDcounter]=np.int(objID)
                 #calculate residual
                 residualRa = raObj - medianRa
                 residualDec = decObj - medianDec

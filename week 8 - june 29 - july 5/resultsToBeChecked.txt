@@ -1,0 +1,82 @@
+on the row number 2701
+object ID -4709727271252749083
+ra of object 11.43544372
+dec of object 31.9015420398
+mjd of object 56220.8838773
+same object now
+on the row number 2702
+object ID -4709727271252749053
+ra of object 11.4167294583
+dec of object 31.831360277
+mjd of object 55503.375816
+different object now
+run functions for the 880 object
+on the row number 2703
+object ID -4709727271252749031
+ra of object 11.2924063474
+dec of object 31.7770786523
+mjd of object 55498.7998727
+different object now
+run functions for the 881 object
+on the row number 2704
+object ID -4709727271252749031
+ra of object 11.292439283
+dec of object 31.7770566207
+mjd of object 56222.3242708
+same object now
+on the row number 2705
+object ID -4709727271252748615
+ra of object 11.3956243983
+dec of object 31.6448262456
+mjd of object 55456.4315162
+different object now
+run functions for the 882 object
+on the row number 2706
+object ID -4709727271252748615
+ra of object 11.3956156939
+dec of object 31.6448431669
+mjd of object 55858.8105671
+same object now
+on the row number 2707
+object ID -4709727271252748615
+ra of object 11.3956247837
+dec of object 31.6448484847
+mjd of object 56224.3026331
+same object now
+on the row number 2708
+object ID -4709727271252748615
+ra of object 11.3955794075
+dec of object 31.6448183143
+mjd of object 55760.5488773
+same object now
+on the row number 2709
+object ID -4709727271252748615
+ra of object 11.3956292873
+dec of object 31.6448442326
+mjd of object 55514.2805671
+same object now
+on the row number 2710
+object ID -4709727271252748615
+ra of object 11.3956231627
+dec of object 31.6448469489
+mjd of object 56476.6124421
+same object now
+on the row number 2711
+object ID -4709727271252748490
+ra of object 11.5432363817
+dec of object 31.7188667198
+mjd of object 56234.3184664
+different object now
+run functions for the 883 object
+no of obs  6
+current objID ra dec mjd : -4709727271252748615 [ 11.3956244   11.39561569  11.39562478  11.39557941  11.39562929
+  11.39562316] [ 31.64482625  31.64484317  31.64484848  31.64481831  31.64484423
+  31.64484695] [55456.431516203796, 55858.810567129636, 56224.302633101819, 55760.548877314664, 55514.280567129841, 56476.612442129757]
+medianRa is 11.3956237805
+medianDec is 31.6448436998
+residualRa is [  6.17796797e-07  -8.08660335e-06   1.00320459e-06  -4.43729548e-05
+   5.50682353e-06  -6.17796797e-07]
+residualDec is [ -1.74541271e-05  -5.32826292e-07   4.78490384e-06  -2.53854370e-05
+   5.32826295e-07   3.24918698e-06]
+pos is 2705
+i is  2711
