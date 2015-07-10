@@ -1,0 +1,8 @@
+
+In [49]: reload(starCatCorrectedFunctions)
+Out[49]: <module 'starCatCorrectedFunctions' from 'starCatCorrectedFunctions.pyc'>
+
+ctedFunctions.calcMedianAndResiduals(triand, False) noOfObsArray, residualRaArray, residualDecArray = starCatCorrec
+processing the last object now
+currObjID medianRa medianDec residualRa residualDec, pos, i, objIDcounter -2961750073693606697 0.183535514647 10.948712991 [  0.00000000e+00  -5.46960585e-06   1.32475395e-05] [  0.00000000e+00   2.89286400e-05  -3.03210368e-05] 20563156 20563158 7366568     
+
