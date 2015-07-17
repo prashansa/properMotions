@@ -45,10 +45,10 @@ class Star(tables.IsDescription):
 chunkSize = 10.0 #degrees
 #for future - once you have implemented this, you might also want to keep the no of obj same in each chunk of the sky -- so your chunksize would depend on that!
 
-someBigNumber = 1000000
+someBigNumber = 1000
 
 raMin  = 0.0 #ra.min()#
-decMin = -90.0 #dec.min()#
+decMin = 5.0 #dec.min()#
 raMax  = 360.0 #ra.max()#
 decMax = 90.0 #dec.max()#
 
@@ -63,33 +63,40 @@ decMaxArray = np.zeros(someBigNumber)
 #assign the current min/max ra/dec values to the 
 currentRaMin  = raMin
 currentDecMin = decMin
-currentRaMax  = raMin + chunkSize
 currentDecMax = decMin + chunkSize
+decAvg = (currentDecMin + currentDecMax)/2.0
+currentRaMax  = raMin + chunkSize/np.cos(np.radians(decAvg))
 
 raMinArray[0] = raMin
 decMinArray[0]= decMin
 raMaxArray[0] = currentRaMax
 decMaxArray[0]= currentDecMax
 
-chunkNo = 1
+chunkNo = 0
+counter = 0
 
 while(currentDecMax < decMax):
     decAvg = (currentDecMin + currentDecMax)/2.0
     print "decAvg", decAvg
     print "cosine of decAvg", np.cos(np.radians(decAvg))
+    counter = 0 
     while(currentRaMax < raMax):
-        raMinArray[chunkNo] = (currentRaMax - (40.0/60.0))#*np.cos(np.radians(decAvg))
-        raMaxArray[chunkNo] = raMinArray[chunkNo] + chunkSize
+        chunkNo += 1
+        raMinArray[chunkNo] = currentRaMax - ((40.0/60.0)/np.cos(np.radians(decAvg)))
+        raMaxArray[chunkNo] = raMinArray[chunkNo] + chunkSize/np.cos(np.radians(decAvg))
         decMinArray[chunkNo]= currentDecMin
         decMaxArray[chunkNo]= currentDecMax
+        counter +=1# to count after how many chunks in ra do we reach the end
         if (raMaxArray[chunkNo] > raMax):
-            raMaxArray[chunkNo] = raMax
+            print "hi", counter
+            raMaxArray[chunkNo] = raMaxArray[chunkNo] - raMax
+            raMinArray[chunkNo] = raMinArray[chunkNo] - raMax
+            break #break statement breaks out of the smallest enclosing of the while/for loop
         if (decMaxArray[chunkNo] > decMax):
             decMaxArray[chunkNo] = decMax
         currentRaMax = raMaxArray[chunkNo]
-        chunkNo += 1
     currentRaMin  = raMin
-    currentRaMax  = raMin + chunkSize
+    currentRaMax  = raMin + chunkSize/np.cos(np.radians(decAvg))
     currentDecMin = currentDecMax - (40.0/60.0)
     currentDecMax = currentDecMin + chunkSize
     print "chunk no", chunkNo  
@@ -109,71 +116,59 @@ while(currentDecMax < decMax):
 #     currentDecMax = decMax
 #     currentRaMin  = (currentRaMax - (40.0/60.0))*np.cos(np.radians(decAvg))
        
-    
-
-
-
-    
-
-def makeChunks(raMin, decMin, raMax, decMax, chunksize, fileName):
-    #this function will make chunks of the sky area passed onto it, return ra/dec bounds of these chunks
-    
       
 
+raMin = 180.0
+raMax = 190.0
+decMin = 20.0
+decMax = 30.0
 
 
-
-   
-# open a pytable file
-h5file = tables.open_file("file1.h5", mode = "w", title = "try1")
-
-# define compression filters
-filters = tables.Filters(complib='blosc', complevel=5)
-
-# create the table
-#create_table(where, name, obj, title, expectedrows, filters)
-#"/" refers to h5file.root object
-table = h5file.create_table('/', 'table1', Star, "tryTable", expectedrows=40563159, filters=filters)
-
-star = table.row
-
-# define selection bounds
-#gal long lower bound, gal lat lower bound, gal long upper bound, gal lat upper bound
-bounds = lsdbounds.rectangle(raMin, decMin, raMax, decMax, coordsys="gal")#(ra,dec) bottomleft; (ra,dec) topright
-bounds = lsdbounds.make_canonical(bounds)
-
-# query LSD for rows and store them into the pytable
-dtype = table.colnames
-
-for row in db.query(query).iterate(bounds=bounds):
-    star['obj_id'] = (row[0]).astype('i8')
-    for j in range(len(dtype)-2):
-        star[dtype[j+1]] = row[j+1]
-    if (row[7] > 0.3) & (row[7] < 1.0) & (row[8] > 0.3) & (row[8] < 1.0):
-        star['gal'] = 1
-    else:
-        star['gal'] = 0
-    star.append()
-
-table.flush()
-
-# create a full index on the obj_id column
-indexrows = table.cols.obj_id.create_csindex(filters=tables.Filters(complib='blosc', complevel=5))
-
-# create a new table that is sorted by obj_id
-sI = table.cols.obj_id
-table2 = tables.Table.copy(table, newname='haha', overwrite=True, sortby=sI, checkCSI=True, propindexes=True)
-
-# delete the unsorted table
-h5file.root.file1.remove()
-
-# close the pytable file
-h5file.close()
-
-
-
-
-
+def executeChunkWise(raMin, decMin, raMax, decMax):
+    #this function will take in the bounds and return a filename corresponding to one set of bounds
+    # open a pytable file
+    h5file = tables.open_file("file.h5", mode = "w", title = "try1")
+    # define compression filters
+    filters = tables.Filters(complib='blosc', complevel=5)
+    # create the table
+    #create_table(where, name, obj, title, expectedrows, filters)
+    #"/" refers to h5file.root object
+    table = h5file.create_table('/', 'table1', Star, "tryTable", expectedrows=40563159, filters=filters)
+    star = table.row
+    # define selection bounds
+    #gal long lower bound, gal lat lower bound, gal long upper bound, gal lat upper bound
+    bounds = lsdbounds.rectangle(raMin, decMin, raMax, decMax, coordsys="equ")#(ra,dec) bottomleft; (ra,dec) topright
+    bounds = lsdbounds.make_canonical(bounds)
+    # query LSD for rows and store them into the pytable
+    counterForRows = 0 
+    dtype = table.colnames
+    for row in db.query(query).iterate(bounds=bounds):
+        star['obj_id']  = (row[0]).astype('i8')
+        counterForRows += 1
+        for j in range(len(dtype)-2):
+            star[dtype[j+1]] = row[j+1]
+        if (row[7] > 0.3) & (row[7] < 1.0) & (row[8] > 0.3) & (row[8] < 1.0):
+            star['gal'] = 1
+        else:
+            star['gal'] = 0
+        star.append()
+        if (counterForRows % 10000 == 0): 
+            table.flush()
+    table.flush()    
+    # create a full index on the obj_id column
+    indexrows = table.cols.obj_id.create_csindex(filters=tables.Filters(complib='blosc', complevel=5))
+    # create a new table that is sorted by obj_id
+    sI = table.cols.obj_id
+    table2 = tables.Table.copy(table, newname='haha', overwrite=True, sortby=sI, checkCSI=True, propindexes=True)
+    # delete the unsorted table
+    h5file.root.table1.remove()
+    # close the pytable file
+    noOfRowsInTable = table.nrows
+    noOfRowInTable2 = table2.nrows
+    h5file.close()
+    string = "file"
+    #should return the file name
+    return string, noOfRowsInTable, noOfRowsInTable2, counterForRows
 
 
 
