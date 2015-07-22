@@ -110,12 +110,13 @@ def pixelTasksCombinedData(parameterList):
     #galIDs -- galaxy IDs corresponding to all detections of galaxies
     #ra/decGal -- original ra and dec values of galaxies
     #starMjds --  mjd values corresponding to all the detections of stars
-    pixelNo, pixelRa, pixelDec, galID, raFinalGal, decFinalGal, galIDs, raGal, decGal, galMjd , starIDs, starMjds, raStar, decStar, pixAllStar, mjdSorted, mjdBreakAt = parameterList
+    pixelNo, pixelRa, pixelDec, galIDfinal, raFinalGal, decFinalGal, galIDs, raGal, decGal, galMjd , starIDs, starMjds, raStar, decStar, pixAllStar, mjdSorted, mjdBreakAt = parameterList
 
-    angSepMask = sphdist(pixelRa, pixelDec, raFinalGal, decFinalGal) <= (searchRadius*60)
+    angSepMask = sphdist(pixelRa, pixelDec, raFinalGal, decFinalGal) <= (searchRadius/60.0)
     #select unique galaxy ids within searchRadius
-    uniqueGalIDinRadius = galID[angSepMask]
+    uniqueGalIDinRadius = galIDfinal[angSepMask]
     raFinalGalInRadius  = raFinalGal[angSepMask]
+    print "raFinalGalInRadius.size",raFinalGalInRadius.size
     decFinalGalInRadius = decFinalGal[angSepMask]
     #match all detections of galaxies with those in radius
     indexInRadius  = np.in1d(galIDs,uniqueGalIDinRadius)
@@ -123,6 +124,7 @@ def pixelTasksCombinedData(parameterList):
     raGalInRadius  = raGal[indexInRadius]
     decGalInRadius = decGal[indexInRadius]
     galIDinRadius  = galIDs[indexInRadius]
+    #print "galIDinRadius[1171070:1171083]",galIDinRadius[1171070:1171083]
     galMjdInRadius = galMjd[indexInRadius] 
          
     currentGalID  = galIDinRadius[0]
@@ -132,6 +134,7 @@ def pixelTasksCombinedData(parameterList):
     galCounter = 0 
     position = 0 
     noOfDetectionsOfGal = galIDinRadius.size
+    print "noOfDetectionsOfGal",noOfDetectionsOfGal
     
     offsetRaArray  = np.zeros(noOfDetectionsOfGal)
     offsetDecArray = np.zeros(noOfDetectionsOfGal)
@@ -139,10 +142,11 @@ def pixelTasksCombinedData(parameterList):
     #run over all the objects within the searchRadius --- i dont know why we did a -1 previously ! think/ask ! :( -- there is no need and then we donot need to think about the last object separately! 
     t =  time()
     for k in np.arange(noOfDetectionsOfGal)+1:
-        print "on galaxy no", k 
+        #print "on galaxy no", k 
         ID  = galIDinRadius[k]
         ra  = raGalInRadius[k]
         dec = decGalInRadius[k]
+	print "ID", ID
         if (ID == currentGalID):
             currentRaGal.append(ra)
             currentDecGal.append(dec)
@@ -152,20 +156,22 @@ def pixelTasksCombinedData(parameterList):
             currentRaGal  = np.array(currentRaGal)
             currentDecGal = np.array(currentDecGal)
             #calculate offsets
+	    print "k", k
+	    print "galCounter", galCounter
             offsetRa  = currentRaGal - raFinalGalInRadius[galCounter]
             offsetDec = currentDecGal - decFinalGalInRadius[galCounter]
             #store offsets
             offsetRaArray[position:k]  = offsetRa
             offsetDecArray[position:k] = offsetDec
-        #update counters and variables
-        galCounter+= 1
-        position   = k
-        currentGalID  = currentGalID
-        currentRaGal  = [raGalInRadius[k]]
-        currentDecGal = [decGalInRadius[k]]
-    print "time taken to calculate offsets of galaxies from their final ra/dec", time()-t
- 
-   
+            #update counters and variables
+	    galCounter+= 1
+	    position   = k
+	    currentGalID  = ID
+	    currentRaGal  = [raGalInRadius[k]]
+	    currentDecGal = [decGalInRadius[k]]
+    #print "time taken to calculate offsets of galaxies from their final ra/dec", time()-t
+    print "galCounter after loop", galCounter	
+	
     # select stars inside the pixel
     resIndexInPixel =  pixAllStar == pixelNo
     #uniqueStarIDinPixel = starID[resIndexInPixel]

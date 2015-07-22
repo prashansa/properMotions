@@ -18,12 +18,12 @@ import combinedStarGalaxyFunctions
 np.seterr(invalid='ignore', divide='ignore')
 
 if os.getenv('HOSTNAME') == 'aida41147':
-	db = DB('/home/bsesar/projects/PS1/DVO:/a41233d1/LSD/from_cfa')
+    db = DB('/home/bsesar/projects/PS1/DVO:/a41233d1/LSD/from_cfa')
 else:
-	db = DB('/a41147d1/bsesar/projects/PS1/DVO:/a41233d1/LSD/from_cfa')
+    db = DB('/a41147d1/bsesar/projects/PS1/DVO:/a41233d1/LSD/from_cfa')
 
 
-searchRadius = 10 #in arcminutes
+searchRadius = 10.0 #in arcminutes
 nside = 2**10
 #specifying size of chunks, assume they are squares so both ra/dec have same breadth
 chunkSize = 10.0 #degrees
@@ -46,8 +46,8 @@ t0 = time()
 testH5file = tables.open_file('/home/gupta/projects/propermotion/combinedFiles/%s.h5' %h5fileName)
 
 if (noOfRows!= countForRows):
-        "error : the no. of rows dont match for chunk no", chunkNo, "with bounds", raMin, decMin, raMax, decMax
-        break
+    "error : the no. of rows dont match for chunk no", chunkNo, "with bounds", raMin, decMin, raMax, decMax
+    break
 
 # load the table
 table = testH5file.root.aTable
@@ -57,6 +57,18 @@ t2 = time()
 
 maskForGal  = table.get_where_list('gal==1')
 maskForStar = table.get_where_list('gal==0')
+
+#get IDs corresponding to all the detections of galaxies
+galaxyIDs = table.col('obj_id')[maskForGal]
+raGalaxy   = table.col('ra')[maskForGal]
+decGalaxy  = table.col('dec')[maskForGal]
+mjdsGalaxy = table.col('mjd')[maskForGal]
+
+#get IDs corresponding to all the detections of stars
+starIDs  = table.col('obj_id')[maskForStar]
+raStar   = table.col('ra')[maskForStar]
+decStar  = table.col('dec')[maskForStar]
+mjdsStar = table.col('mjd')[maskForStar]
 
 
 # mjdValues  = table.col('mjd')[maskForGal]
@@ -76,28 +88,12 @@ tBreakAtStar   = np.where(deltaTStar < (-100.0))[0]
 mjdBreakAtStar = mjdSortedStar[tBreakAtStar + 1]
 #array([ 55521.60238426,  55897.66508102,  56231.6315625 ])
 
-#get IDs corresponding to all the detections of galaxies
-galaxyIDs = table.col('obj_id')[maskForGal]
-raGalaxy   = table.col('ra')[maskForGal]
-decGalaxy  = table.col('dec')[maskForGal]
-mjdsGalaxy = table.col('mjd')[maskForGal]
-
-#get IDs corresponding to all the detections of stars
-starIDs  = table.col('obj_id')[maskForStar]
-raStar   = table.col('ra')[maskForStar]
-decStar  = table.col('dec')[maskForStar]
-mjdsStar = table.col('mjd')[maskForStar]
 
 #store min and max values separately
 minRaGal  = table.col('ra')[maskForGal].min()
 maxRaGal  = table.col('ra')[maskForGal].max()
 minDecGal = table.col('dec')[maskForGal].min()
 maxDecGal = table.col('dec')[maskForGal].max()
-
-
-
-
-
 
 
 
@@ -133,37 +129,29 @@ finalDecArray = finalDecArray[0:rowCounter]
 ######################################################
 
 
-
-
-
-
-
-
-#pixelise 
+#pixelise using data from available galaxies. 
 
 phiForObj   = (finalRaArray*np.pi)/180 
 thetaForObj = (90 - finalDecArray)* (np.pi/180) 
 pixelIndexForObj = hp.ang2pix(nside, thetaForObj, phiForObj) 
 
-
-phiForStar   = (raStar*np.pi)/180 
-thetaForStar = (90 - decStar)* (np.pi/180) 
-pixelIndexForStar = hp.ang2pix(nside, thetaForStar, phiForStar) 
-
-
-
-goodPixels = (finalRaArray >= (minRaGal + 10./60)) & \
-    (finalRaArray <= (maxRaGal - 10./60)) & \
-    (finalDecArray >= (minDecGal + 10./60)) & \
-    (finalDecArray <= (maxDecGal - 10./60))
+# goodPixels = (finalRaArray >= (minRaGal + 10./60)) & \
+#     (finalRaArray <= (maxRaGal - 10./60)) & \
+#     (finalDecArray >= (minDecGal + 10./60)) & \
+#     (finalDecArray <= (maxDecGal - 10./60))
     
-pixelIndexArray = np.unique(pixelIndexForObj[goodPixels])
+pixelIndexArray = np.unique(pixelIndexForObj)#[goodPixels])
 theta, phi = hp.pix2ang(nside, pixelIndexArray)
 pixelRa  = 180*phi/np.pi
 pixelDec = 90 - theta*180/np.pi
 
 print "Going to process %d pixels." % pixelIndexArray.size
 #Going to process 28878 pixels -- the same as we obtained while running the previous galaxy code -- expected since the min ra/dec are the same
+
+
+phiForStar   = (raStar*np.pi)/180 
+thetaForStar = (90 - decStar)* (np.pi/180) 
+pixelIndexForStar = hp.ang2pix(nside, thetaForStar, phiForStar) 
 
 
 packParameterList = [ (pickPixelNo, pixelRa[index], pixelDec[index],objIDarray, finalRaArray, finalDecArray, galaxyIDs, raGalaxy, decGalaxy,mjdsGalaxy , starIDs, mjdsStar, raStar, decStar, pixelIndexForStar,mjdSortedStar, mjdBreakAtStar ) for index, pickPixelNo in enumerate(pixelIndexArray)]
@@ -181,14 +169,15 @@ dat1 = []
 dat2 = []
 dat  = []
 
-for res in iterator:
+#for res in iterator:
+for param in packParameterList:
     noOfPixelsIterated +=1
-    objIDstar, raStar, decStar = res 
-    dat.append(objIDstar)
-    dat1.append(raStar)
-    dat2.append(decStar)
-    print 'obj id ',dat
-    print 'ra', dat1
-    print 'dec', dat2
+    objIDstar, raStar, decStar =combinedStarGalaxyFunctions.pixelTasksCombinedData(param)
+    #dat.append(objIDstar)
+    #dat1.append(raStar)
+    #dat2.append(decStar)
+    #print 'obj id ',objIDstar#dat
+    #print 'ra', raStar# dat1
+    #print 'dec', decStar # dat2
     print 'noOfPixelsIterated',noOfPixelsIterated
     
