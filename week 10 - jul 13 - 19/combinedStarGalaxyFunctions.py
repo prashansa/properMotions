@@ -112,7 +112,7 @@ def pixelTasksCombinedData(parameterList):
     #starMjds --  mjd values corresponding to all the detections of stars
     pixelNo, pixelRa, pixelDec, galIDfinal, raFinalGal, decFinalGal, galIDs, raGal, decGal, galMjd , starIDs, starMjds, raStar, decStar, pixAllStar, mjdSorted, mjdBreakAt = parameterList
 
-    angSepMask = sphdist(pixelRa, pixelDec, raFinalGal, decFinalGal) <= (searchRadius/60.0)
+    angSepMask = (sphdist(pixelRa, pixelDec, raFinalGal, decFinalGal)) <= (searchRadius/60.0)
     #select unique galaxy ids within searchRadius
     uniqueGalIDinRadius = galIDfinal[angSepMask]
     raFinalGalInRadius  = raFinalGal[angSepMask]
