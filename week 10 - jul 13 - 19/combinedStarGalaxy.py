@@ -37,17 +37,17 @@ decMin = 23.6666666667
 raMax  = 148.880976675
 decMax = 33.6666666667
 
-h5fileName,noOfRows, countForRows = combinedStarGalaxyFunctions.executeChunkWise(raMin, decMin, raMax, decMax, chunkNo)
+#h5fileName,noOfRows, countForRows = combinedStarGalaxyFunctions.executeChunkWise(raMin, decMin, raMax, decMax, chunkNo)
 #noOfRows = 3852132
 
 
 t0 = time()
 
-testH5file = tables.open_file('/home/gupta/projects/propermotion/combinedFiles/%s.h5' %h5fileName)
+testH5file = tables.open_file('/home/gupta/projects/propermotion/combinedFiles/combinedFile9999.h5')#%s.h5' %h5fileName)
 
-if (noOfRows!= countForRows):
-    "error : the no. of rows dont match for chunk no", chunkNo, "with bounds", raMin, decMin, raMax, decMax
-    break
+#if (noOfRows!= countForRows): 
+#    "error : the no. of rows dont match for chunk no", chunkNo, "with bounds", raMin, decMin, raMax, decMax 
+#    break
 
 # load the table
 table = testH5file.root.aTable
@@ -107,7 +107,7 @@ cursor = connection.cursor()
 #obtain object_ids, finalRa and finalDec values from the database and put in separate arrays
 rowCounter = 0 
 #define arrays with a reasonable size
-objIDarray = np.zeros(100000000) # eight zeros
+objIDarray = np.zeros(100000000, dtype = 'u8') # eight zeros
 finalRaArray  = np.zeros(100000000)
 finalDecArray = np.zeros(100000000)
 
@@ -157,11 +157,11 @@ pixelIndexForStar = hp.ang2pix(nside, thetaForStar, phiForStar)
 packParameterList = [ (pickPixelNo, pixelRa[index], pixelDec[index],objIDarray, finalRaArray, finalDecArray, galaxyIDs, raGalaxy, decGalaxy,mjdsGalaxy , starIDs, mjdsStar, raStar, decStar, pixelIndexForStar,mjdSortedStar, mjdBreakAtStar ) for index, pickPixelNo in enumerate(pixelIndexArray)]
 
 
-#start workers
-pool = Pool(processes=24)
-ti = time()
-#chunk size is used to submit jobs in batches which reduces overhead
-iterator = pool.imap_unordered(combinedStarGalaxyFunctions.pixelTasksCombinedData,packParameterList, chunksize=100)
+# #start workers
+# pool = Pool(processes=24)
+# ti = time()
+# #chunk size is used to submit jobs in batches which reduces overhead
+# iterator = pool.imap_unordered(combinedStarGalaxyFunctions.pixelTasksCombinedData,packParameterList, chunksize=100)
 
 counter = 0
 noOfPixelsIterated = 0

@@ -146,11 +146,11 @@ def pixelTasksCombinedData(parameterList):
         ID  = galIDinRadius[k]
         ra  = raGalInRadius[k]
         dec = decGalInRadius[k]
-	print "ID", ID
+	#print "ID", ID
         if (ID == currentGalID):
             currentRaGal.append(ra)
             currentDecGal.append(dec)
-            print "same object now"
+            #print "same object now"
         else:
             #make them numpy arrays
             currentRaGal  = np.array(currentRaGal)
