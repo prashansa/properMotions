@@ -1,0 +1,23 @@
+noOfPixelsIterated 799
+noOfPixelsIterated 800
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/multiprocessing/pool.py", line 326, in _handle_workers
+    pool._maintain_pool()
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/multiprocessing/pool.py", line 230, in _maintain_pool
+    self._repopulate_pool()
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/multiprocessing/pool.py", line 223, in _repopulate_pool
+    w.start()
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/multiprocessing/process.py", line 130, in start
+    self._popen = Popen(self)
+  File "/home/bsesar/Canopy/appdata/canopy-1.5.4.3105.rh5-x86_64/lib/python2.7/multiprocessing/forking.py", line 121, in __init__
+    self.pid = os.fork()
+OSError: [Errno 12] Cannot allocate memory
+
+noOfPixelsIterated 801
+noOfPixelsIterated 802
+noOfPixelsIterated 803
