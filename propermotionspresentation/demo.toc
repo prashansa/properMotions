@@ -1,0 +1,6 @@
+\beamer@endinputifotherversion {3.33pt}
+\beamer@sectionintoc {1}{Problem Statement}{2}{0}{1}
+\beamer@sectionintoc {2}{Motivation}{4}{0}{2}
+\beamer@sectionintoc {3}{Method Proposed}{17}{0}{3}
+\beamer@sectionintoc {4}{Progress}{32}{0}{4}
+\beamer@sectionintoc {5}{Colophon}{42}{0}{5}
